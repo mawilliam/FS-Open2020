@@ -1,0 +1,56 @@
+// Application to display details about the Full Stack Open course
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+// course information object containing a string representing the course name
+// and an array of objects that represent each part's name and number of exercises
+const courses = [
+  {
+    name: 'Half Stack application development',
+    id: 1,
+    parts: [
+      {
+        name: 'Fundamentals of React',
+        exercises: 10,
+        id: 1
+      },
+      {
+        name: 'Using props to pass data',
+        exercises: 7,
+        id: 2
+      },
+      {
+        name: 'State of a component',
+        exercises: 14,
+        id: 3
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
+      }
+    ]
+  }, 
+  {
+    name: 'Node.js',
+    id: 2,
+    parts: [
+      {
+        name: 'Routing',
+        exercises: 3,
+        id: 1
+      },
+      {
+        name: 'Middlewares',
+        exercises: 7,
+        id: 2
+      }
+    ]
+  }
+]
+
+ReactDOM.render(
+  <App courses={courses} />,
+  document.getElementById('root')
+);
