@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import Filter from './components/Filter';
+import PersonForm from './components/PersonForm';
+import Persons from './components/Persons';
 
 const App = () => {
   // *** state variable and update functions *** 
@@ -15,6 +18,10 @@ const App = () => {
 
   // used to control the second form input element
   const [ newNumber, setNewNumber ] = useState('');
+
+  // used to control the filter input element
+  const [ filterText, setNewFilter ] = useState('');
+  const [ filteredPersons, setFilteredPersons ] = useState(persons);
 
   // handle the form submission
   const addPerson = (event) => {
@@ -48,28 +55,39 @@ const App = () => {
   const handleNumberChange = (event) => {
     console.log(event.target.value);
     setNewNumber(event.target.value);
-  }
+  };
+
+  // handle the user typing in the filter input element
+  const handleFilterChange = (event) => {
+    console.log(event.target.value);
+    // filter the list of persons
+    setNewFilter(event.target.value);
+    const newPersons = event.target.value === '' 
+      ? persons 
+      : persons.filter(person => person.name.toLowerCase().includes(event.target.value.toLowerCase()));
+    setFilteredPersons(newPersons);
+  };
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input 
-            value={newName}
-            onChange={handlePersonChange} />
-        </div>
-        <div>
-          number: <input 
-            value={newNumber}
-            onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      
+      <Filter
+        filterText={filterText}
+        handleFilterChange={handleFilterChange} />
+
+      <h3>Add a new</h3>
+
+      <PersonForm 
+        handleSubmit={addPerson}
+        handlePersonChange={handlePersonChange}
+        handleNumberChange={handleNumberChange}
+        newName={newName}
+        newNumber={newNumber}
+      />
+      
       <h2>Numbers</h2>
-      ...
+      <Persons filteredPersons={filteredPersons} />
     </div>
   );
 };
