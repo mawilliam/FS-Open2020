@@ -1,21 +1,18 @@
 import React from 'react';
 
-const Persons = ( {filteredPersons} ) => {
+const Person = ( {person, handleDelete} ) => {
     // Display the contents of the phonebook
     // Format: Name number
     return (
-        <table>
-            <tbody>
-                {filteredPersons.map((person, i) =>
-                    <tr key={i}>
-                        <td>{person.name} </td>
-                        <td>{person.number} </td>
-                    </tr>
-                )}
-            </tbody>
-        </table>
+        <tr>
+            <td>{person.name} </td>
+            <td>{person.number} </td>
+            <td>
+                <button onClick={handleDelete} >delete</button>
+            </td>
+        </tr>
     )
     
 };
 
-export default Persons;
+export default Person;
