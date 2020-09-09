@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import personService from './services/persons';
-import axios from 'axios';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Person from './components/Persons';
+import Notification from './components/Notification';
 
 const App = () => {
   // *** state variable and update functions *** 
@@ -19,6 +19,10 @@ const App = () => {
   // used to control the filter input element
   const [ filterText, setNewFilter ] = useState('');
   const [ filteredPersons, setFilteredPersons ] = useState([]);
+
+  // used to control the error message
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorType, setErrorType] = useState(null);
 
   // fetch initial data from the server
   useEffect(() => {
@@ -44,10 +48,26 @@ const App = () => {
           setPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson));
           setNewName('');
           setNewNumber('');
-          setNewFilter('');
-          setFilteredPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson));
+          setFilteredPersons(filteredPersons.map(person => person.id !== duplicate.id ? person : returnedPerson));
+          setErrorType('message');
+          setErrorMessage(
+            `${returnedPerson.name} was updated`
+          );
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 3000); // leave the message for at least 3 seconds
         })
-    }
+        .catch(error => {
+          setFilteredPersons(filteredPersons.filter(p => p.id !== duplicate.id))
+          setErrorType('error');
+          setErrorMessage(
+            `${duplicate.name} was already removed from the server`
+          );
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 3000); // leave the message for at least 3 seconds
+        });
+    };
   };
   const addPerson = (event) => {
     event.preventDefault();
@@ -71,18 +91,27 @@ const App = () => {
         setPersons(persons.concat(returnedPerson));
         setNewName('');
         setNewNumber('');
-        setNewFilter(''); // could also leave this and it would update on the next change
-        setFilteredPersons(persons.concat(returnedPerson));
+        // check if we need to update the list of numbers
+        if (filterText === '' || returnedPerson.name.toLowerCase().includes(filterText.toLowerCase())) {
+          setFilteredPersons(filteredPersons.concat(returnedPerson))
+        }
+        setErrorType('message');
+        setErrorMessage(
+          `${returnedPerson.name} was added to the phonebook`
+        );
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000); // leave the message for at least 3 seconds
       });
   };
 
-  // handle the user typing in the input element
+  // handle the user typing in the name input element
   const handlePersonChange = (event) => {
     console.log(event.target.value);
     setNewName(event.target.value); // updates the value of the input
   };
 
-  // handle the user typing in the second input element
+  // handle the user typing in the number input element
   const handleNumberChange = (event) => {
     console.log(event.target.value);
     setNewNumber(event.target.value);
@@ -102,7 +131,8 @@ const App = () => {
   // handle deleting a contact
   const deletePersonOf = (personID) => {
     // confirm deletion
-    const result = window.confirm(`Delete ${persons.find(p => p.id === personID).name}?`)
+    const toDelete = persons.find(p => p.id === personID);
+    const result = window.confirm(`Delete ${toDelete.name}?`);
 
     if (!result) {
       return;
@@ -113,14 +143,23 @@ const App = () => {
       .then(() => {
         console.log('deleted');
         setPersons(persons.filter(person => person.id !== personID));
-        setNewFilter('');
-        setFilteredPersons(persons.filter(person => person.id !== personID));
+        setFilteredPersons(filteredPersons.filter(person => person.id !== personID));
+        setErrorType('message');
+        setErrorMessage(
+          `${toDelete.name} was removed from the phonebook`
+        );
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000); // leave the message for at least 3 seconds
       })
       .catch(error => {
-        console.log(error);
-        alert(
-          `the person was already deleted from the server`
-        )
+        setErrorType('error');
+        setErrorMessage(
+          `${toDelete.name} was already removed from the server`
+        );
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000); // leave the message for at least 3 seconds
 
       })
   }
@@ -128,6 +167,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} type={errorType} />
       
       <Filter
         filterText={filterText}
