@@ -102,6 +102,9 @@ const App = () => {
         setTimeout(() => {
           setErrorMessage(null)
         }, 3000); // leave the message for at least 3 seconds
+      })
+      .catch(error => {
+        console.log(error.response.data);
       });
   };
 
