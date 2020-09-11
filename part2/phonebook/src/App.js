@@ -45,23 +45,34 @@ const App = () => {
       personService
         .updateContact(duplicate.id, changedPerson)
         .then(returnedPerson => {
-          setPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson));
-          setNewName('');
-          setNewNumber('');
-          setFilteredPersons(filteredPersons.map(person => person.id !== duplicate.id ? person : returnedPerson));
-          setErrorType('message');
-          setErrorMessage(
-            `${returnedPerson.name} was updated`
-          );
-          setTimeout(() => {
-            setErrorMessage(null)
-          }, 3000); // leave the message for at least 3 seconds
-        })
+          // check if the id was in the db
+          if (returnedPerson) {
+            setPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson));
+            setNewName('');
+            setNewNumber('');
+            setFilteredPersons(filteredPersons.map(person => person.id !== duplicate.id ? person : returnedPerson));
+            setErrorType('message');
+            setErrorMessage(
+              `${returnedPerson.name} was updated`
+            );
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 3000); // leave the message for at least 3 seconds
+          } else {
+            setFilteredPersons(filteredPersons.filter(p => p.id !== duplicate.id))
+            setErrorType('error');
+            setErrorMessage(
+              `${duplicate.name} was already removed from the server`
+            );
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 3000); // leave the message for at least 3 seconds
+          };
+          })
         .catch(error => {
-          setFilteredPersons(filteredPersons.filter(p => p.id !== duplicate.id))
           setErrorType('error');
           setErrorMessage(
-            `${duplicate.name} was already removed from the server`
+            `${error.response.data.error}`
           );
           setTimeout(() => {
             setErrorMessage(null)
@@ -104,7 +115,12 @@ const App = () => {
         }, 3000); // leave the message for at least 3 seconds
       })
       .catch(error => {
-        console.log(error.response.data);
+        console.log(error.response.data.error);
+        setErrorType('error');
+        setErrorMessage(`${error.response.data.error}`);
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000); // leave the message for at least 3 seconds
       });
   };
 
